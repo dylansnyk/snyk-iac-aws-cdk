@@ -1,0 +1,22 @@
+name: Snyk IaC - AWS CDK
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  snyk-iac:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: cdk synth
+        uses: youyo/aws-cdk-github-actions@v2
+        with:
+          cdk_subcommand: 'synth'
+          working_dir: '.'
+      - uses: snyk/actions/setup@master
+      - name: Run Snyk to check configuration files for security issues
+        continue-on-error: true
+        run: snyk iac test cdk.out
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
